@@ -49,16 +49,10 @@ static char iface[PROPERTY_VALUE_MAX];
 // sockets is in
 
 #ifndef WIFI_DRIVER_MODULE_PATH
-#define WIFI_DRIVER_MODULE_PATH         "/system/lib/modules/libertas.ko"
-#endif
-#ifndef WIFI_DRIVER_MODULE_SDIO_PATH
-#define WIFI_DRIVER_MODULE_SDIO_PATH    "/system/lib/modules/libertas_sdio.ko"
+#define WIFI_DRIVER_MODULE_PATH         "/system/lib/modules/wlan.ko"
 #endif
 #ifndef WIFI_DRIVER_MODULE_NAME
-#define WIFI_DRIVER_MODULE_NAME         "libertas"
-#endif
-#ifndef WIFI_DRIVER_MODULE_SDIO_NAME
-#define WIFI_DRIVER_MODULE_SDIO_NAME    "libertas_sdio"
+#define WIFI_DRIVER_MODULE_NAME         "wlan"
 #endif
 #ifndef WIFI_DRIVER_MODULE_ARG
 #define WIFI_DRIVER_MODULE_ARG          ""
@@ -72,10 +66,8 @@ static char iface[PROPERTY_VALUE_MAX];
 
 static const char IFACE_DIR[]           = "/data/system/wpa_supplicant";
 static const char DRIVER_MODULE_NAME[]  = WIFI_DRIVER_MODULE_NAME;
-static const char DRIVER_MODULE_SDIO_NAME[]  = WIFI_DRIVER_MODULE_SDIO_NAME;
 static const char DRIVER_MODULE_TAG[]   = WIFI_DRIVER_MODULE_NAME " ";
 static const char DRIVER_MODULE_PATH[]  = WIFI_DRIVER_MODULE_PATH;
-static const char DRIVER_MODULE_SDIO_PATH[]  = WIFI_DRIVER_MODULE_SDIO_PATH;
 static const char DRIVER_MODULE_ARG[]   = WIFI_DRIVER_MODULE_ARG;
 static const char FIRMWARE_LOADER[]     = WIFI_FIRMWARE_LOADER;
 static const char DRIVER_PROP_NAME[]    = "wlan.driver.status";
@@ -186,9 +178,6 @@ int wifi_load_driver()
     if (insmod(DRIVER_MODULE_PATH, DRIVER_MODULE_ARG) < 0)
         return -1;
 
-    if (insmod(DRIVER_MODULE_SDIO_PATH, DRIVER_MODULE_ARG) < 0)
-        return -1;
-
     if (strcmp(FIRMWARE_LOADER,"") == 0) {
         usleep(WIFI_DRIVER_LOADER_DELAY);
         property_set(DRIVER_PROP_NAME, "ok");
@@ -217,24 +206,11 @@ int wifi_unload_driver()
 {
     int count = 20; /* wait at most 10 seconds for completion */
 
-    if (rmmod(DRIVER_MODULE_SDIO_NAME) == 0) {
-	while (count-- > 0) {
-	    if (!check_driver_loaded())
-		break;
-	    usleep(500000);
-	}
-	if (count < 1)
-	    return -1;
-    } else
-        return -1;
-
-    count = 20;
-
     if (rmmod(DRIVER_MODULE_NAME) == 0) {
 	while (count-- > 0) {
 	    if (!check_driver_loaded())
 		break;
-	    usleep(500000);
+    	    usleep(500000);
 	}
 	if (count) {
     	    return 0;
