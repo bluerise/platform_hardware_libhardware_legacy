@@ -50,8 +50,10 @@ static int sendit(int timeout_ms)
 		if(fd < 0)
 			return errno;
 
-		if(timeout_ms > 0)
+		if(timeout_ms != 0)
 		{
+			if(timeout_ms > 4999 || timeout_ms < 0)
+				timeout_ms = 4999;
 			nwr = sprintf(value, "at+xdrv=4,0,1,12,%d,%d\r\n",timeout_ms+1,timeout_ms);
 		}
 		else
